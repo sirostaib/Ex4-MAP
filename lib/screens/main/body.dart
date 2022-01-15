@@ -23,18 +23,40 @@ class Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<List<Todo>>(
+        future: _state.todolistfuture,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            _state.todolist = snapshot.data;
+            print("slaw: " + _state.todolist.toString());
+            return _listbuilder();
+          }
+          return Container();
+        });
+  }
+
+  ListView _listbuilder() {
     return ListView.separated(
-      itemCount: 5,
+      //key: UniqueKey(_state),
+      itemCount: _state.user == null ? 0 : _state.todolist.length,
       separatorBuilder: (context, index) => Divider(
         color: Colors.blueGrey,
       ),
       itemBuilder: (context, index) => ListTile(
-        title: Text('Todo title',
-            style: TextStyle(decoration: TextDecoration.lineThrough)),
-        subtitle: Text('Todo description'),
-        onTap: () {},
-        onLongPress: () {},
-      ),
+          title: Text(_state.todolist[index].title,
+              style: TextStyle(
+                  decoration: _state.todolist[index].done
+                      ? TextDecoration.lineThrough
+                      : null)),
+          subtitle: Text(_state.todolist[index].description),
+          onTap: () async {
+            final Todo todo = await Navigator.of(context).pushNamed('/edit',
+                arguments: Todo.copy(_state.todolist[index])) as Todo;
+            if (todo != null) {
+              _state.updateTodo(index: index, todo: todo);
+            }
+          },
+          onLongPress: () => _state.removeTodo(index)),
     );
   }
 }

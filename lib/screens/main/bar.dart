@@ -15,6 +15,7 @@
 //        b. Logout - This will reset the 'user' state to 'null'.
 //-----------------------------------------------------------------------------------------------------------------------------
 
+import 'package:exercise3/models/user.dart';
 import 'package:flutter/material.dart';
 
 import 'main_screen.dart';
@@ -29,16 +30,36 @@ class Bar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading:
-          CircleAvatar(backgroundImage: AssetImage('assets/unknown_user.png')),
+      leading: _state.user == null
+          ? CircleAvatar(backgroundImage: AssetImage('assets/unknown_user.png'))
+          : CircleAvatar(backgroundImage: NetworkImage(_state.user.photoUrl)),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('My Todo List'),
-          Text('User name goes here', style: TextStyle(fontSize: 12.0)),
+          _state.user == null
+              ? Text('User name goes here', style: TextStyle(fontSize: 12.0))
+              : Text(_state.user.name, style: TextStyle(fontSize: 12.0)),
         ],
       ),
-      actions: [IconButton(icon: Icon(Icons.login), onPressed: () {})],
+      actions: [
+        IconButton(
+          icon: _state.user == null ? Icon(Icons.login) : Icon(Icons.logout),
+          onPressed: _state.user == null
+              ? () async {
+                  final user = await Navigator.pushNamed(context, '/login');
+                  _state.user = user;
+                  _state.refreshME();
+                }
+              : () async {
+                  _state.user = null;
+                  _state.todolist = null;
+                  final user = await Navigator.pushNamed(context, '/login');
+                  _state.refreshME();
+                  _state.user = user;
+                },
+        )
+      ],
     );
   }
 }

@@ -5,8 +5,8 @@
 //   1. Declare all the states required for this screen. To be done in this file.
 //      You may also want to define getters and setters for the states.
 //      The states should include:
-//        a. the 'logged in user'
-//        b. the 'list of todos'
+//        a. the 'logged in user'                    done...
+//        b. the 'list of todos'                     done...
 //        c. a 'Future' data for the todo list
 //
 //   2. Define several methods in the 'MainScreenState' class
@@ -52,21 +52,83 @@ class MainScreen extends StatefulWidget {
 }
 
 class MainScreenState extends State<MainScreen> {
-  void addTodo(Todo todo) async {}
-  void updateTodo({int index, Todo todo}) async {}
-  void removeTodo(int index) async {}
+  User _user;
+
+  User get user => this._user;
+  set user(User user) => setState(() {
+        _user = user;
+      });
+
+  List<Todo> _todo;
+  Future<List<Todo>> _todoFuture;
+
+  List<Todo> get todolist => this._todo;
+  set todolist(List<Todo> todo) => this._todo = todo;
+
+  Future<List<Todo>> get todolistfuture => this._todoFuture;
+  set todolistfuture(Future<List<Todo>> value) => this._todoFuture = value;
+
+  void refreshME() {
+    if (_user == null) {
+      setState(() {
+        _todoFuture = null;
+        _todo = null;
+      });
+    } else {
+      setState(() {
+        _todoFuture = TodoService.getTodoListByUser(user.id);
+        //_todo = _todoFuture as List<Todo>;
+      });
+    }
+  }
+
+  void addTodo(Todo todo) async {
+    todo.user = _user.id;
+    final newTodo = await TodoService.addTodo(todo);
+    todolist.add(newTodo);
+    setState(() {});
+  }
+
+  void updateTodo({int index, Todo todo}) async {
+    todo.user = _user.id;
+    final updatedTodo = await TodoService.updateTodo(todo);
+    todolist[index] = updatedTodo;
+    setState(() {});
+  }
+
+  void removeTodo(int index) async {
+    await TodoService.removeTodo(todolist[index]);
+    todolist.removeAt(index);
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
+    // _user == null ? null : updateTTodo();
     return WillPopScope(
       onWillPop: () => Future.value(false),
       child: SafeArea(
         child: Scaffold(
-          appBar: Bar(),
-          body: Body(),
-          floatingActionButton: Float(),
+          appBar: Bar(
+            state: this,
+          ),
+          body: user != null
+              ? Body(
+                  state: this,
+                )
+              : Container(),
+          floatingActionButton: user != null
+              ? Float(
+                  state: this,
+                )
+              : Container(),
         ),
       ),
     );
   }
+
+  // Future<void> updateTTodo() async {
+  //   _todo = await TodoService.getTodoListByUser(_user.id);
+  //   setState(() {});
+  // }
 }

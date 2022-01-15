@@ -17,6 +17,8 @@
 //        b. Cancel the login - i.e. when the 'Cancel' button is tapped on.
 //-----------------------------------------------------------------------------------------------------------------------------
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '../../services/user_service.dart';
@@ -25,7 +27,6 @@ import 'login_screen.dart';
 
 class Body extends StatelessWidget {
   const Body({state}) : _state = state;
-
   final LoginScreenState _state;
 
   @override
@@ -34,34 +35,39 @@ class Body extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildTextField(
-            hint: 'Username', icon: Icons.people, onChanged: (value) => () {}),
-        _buildTextField(
-            hint: 'Password',
-            isObsecure: false,
-            icon: Icons.lock,
-            button: IconButton(icon: Icon(Icons.visibility), onPressed: () {}),
-            onChanged: (value) => () {}),
-        Text(
-          'Invalid username or password!',
-          style: TextStyle(color: Colors.red, fontSize: 20.0),
+        TextField(
+          decoration: InputDecoration(
+            hintText: 'Username',
+            prefixIcon: Icon(Icons.people),
+          ),
+          onChanged: (text) {
+            _state.username = text;
+          },
         ),
+        TextField(
+          decoration: InputDecoration(
+            hintText: "Password",
+            prefixIcon: Icons.lock != null ? Icon(Icons.lock) : null,
+            suffixIcon: IconButton(
+                icon: Icon(Icons.visibility),
+                onPressed: () {
+                  _state.togglepassword = !_state.togglepassword;
+                }),
+          ),
+          obscureText: _state.togglepassword,
+          onChanged: (text) {
+            _state.password = text;
+          },
+        ),
+        _state.invlid
+            ? Text(
+                'Invalid username or password!',
+                style: TextStyle(color: Colors.red, fontSize: 20.0),
+              )
+            : Text(" "),
         SizedBox(height: 10.0),
         _buildButtons(context)
       ],
-    );
-  }
-
-  TextField _buildTextField(
-      {hint, icon, isObsecure = false, button, onChanged}) {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: hint,
-        prefixIcon: icon != null ? Icon(icon) : null,
-        suffixIcon: button,
-      ),
-      obscureText: isObsecure,
-      onChanged: onChanged,
     );
   }
 
@@ -71,14 +77,35 @@ class Body extends StatelessWidget {
       children: [
         ElevatedButton(
           child: Text('Log in'),
-          onPressed: () {},
+          onPressed: () {
+            print("Username: " + _state.username);
+            print("Password: " + _state.password);
+            login(context);
+            //AlertDialog()
+          },
         ),
         SizedBox(width: 10.0),
         ElevatedButton(
           child: Text('Cancel'),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context, null);
+          },
         ),
       ],
     );
+  }
+
+  void login(context) async {
+    final User user = await UserService.getUserByLoginAndPassword(
+        login: _state.username, password: _state.password);
+
+    if (user == null) {
+      _state.invlid = true;
+      print("invalid login");
+    } else {
+      _state.invlid = false;
+      inspect(user);
+      Navigator.of(context).pop(user);
+    }
   }
 }

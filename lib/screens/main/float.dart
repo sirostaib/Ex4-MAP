@@ -7,6 +7,7 @@
 //        b. Refresh the screen - i.e. when the user taps on the 'Refresh' button
 //-----------------------------------------------------------------------------------------------------------------------------
 
+import 'package:exercise3/models/todo.dart';
 import 'package:flutter/material.dart';
 
 import 'main_screen.dart';
@@ -25,13 +26,19 @@ class Float extends StatelessWidget {
           tooltip: 'Add a new todo',
           child: Icon(Icons.add),
           heroTag: null,
-          onPressed: () {},
+          onPressed: () async {
+            final Todo todo =
+                await Navigator.of(context).pushNamed('/new') as Todo;
+            if (todo != null) {
+              _state.addTodo(todo);
+            }
+          },
         ),
         FloatingActionButton(
             tooltip: 'Refresh',
             child: Icon(Icons.refresh),
             heroTag: null,
-            onPressed: () {})
+            onPressed: () => _state.refreshME())
       ],
     );
   }
