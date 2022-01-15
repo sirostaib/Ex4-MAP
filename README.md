@@ -4,6 +4,12 @@ A new Flutter project.
 
 ## Getting Started
 
+## Pair Programming Members:
+
+## Kardo Faruq - QU182SCSJ029
+
+## Siroz Ali - QU182SCSJ076
+
 This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
