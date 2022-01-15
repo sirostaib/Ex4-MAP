@@ -29,19 +29,30 @@ class Body extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        _buildTextLisTile(
-            label: 'Title',
-            value: 'Todo title goes here',
-            onChanged: (value) {}),
+        ListTile(
+          title: TextFormField(
+            initialValue:
+                _state.widget.isEditing ? _state.widget.data.title : '',
+            decoration: InputDecoration(
+              labelText: 'Title',
+            ),
+            onChanged: (valuee) => {_state.updateTitle, print("slaw")},
+          ),
+        ),
         _buildTextLisTile(
             label: 'Description',
-            value: 'Todo description goes here',
-            onChanged: (value) {}),
-        CheckboxListTile(
-          value: false,
-          onChanged: (value) {},
-          title: Text('Done'),
-        ),
+            value:
+                _state.widget.isEditing ? _state.widget.data.description : '',
+            onChanged: (value) {
+              _state.todo.description = value;
+            }),
+        _state.widget.isEditing
+            ? CheckboxListTile(
+                value: _state.todo.done,
+                onChanged: _state.updateDone,
+                title: Text('Done'),
+              )
+            : Text(""),
         _buildButtons(context)
       ],
     );
@@ -65,12 +76,16 @@ class Body extends StatelessWidget {
       children: [
         ElevatedButton(
           child: Text('Ok'),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pop(_state.widget.data);
+          },
         ),
         SizedBox(width: 10.0),
         ElevatedButton(
           child: Text('Cancel'),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
       ],
     );

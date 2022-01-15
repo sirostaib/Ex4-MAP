@@ -27,18 +27,36 @@ class EditScreen extends StatefulWidget {
         _data = data;
 
   @override
-  EditScreenState createState() => EditScreenState();
+  EditScreenState createState() => EditScreenState(_data);
 }
 
 class EditScreenState extends State<EditScreen> {
+  Todo todo;
+  EditScreenState(this.todo);
+  void updateDone(bool value) {
+    setState(() {
+      todo.done = value;
+    });
+  }
+
+  void updateTitle(String value) {
+    setState(() {
+      todo.title = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () => Future.value(false),
       child: SafeArea(
         child: Scaffold(
-          appBar: Bar(),
-          body: Body(),
+          appBar: Bar(
+            state: this,
+          ),
+          body: Body(
+            state: this,
+          ),
         ),
       ),
     );
